@@ -58,6 +58,20 @@
         .cancel-btn { background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
 
         .error-msg { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb; }
+        
+        /* FIX: Dynamic local alert wrapper class used inside modals */
+        .modal-error-notification { 
+            background-color: #f8d7da; 
+            color: #721c24; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-bottom: 15px; 
+            border: 1px solid #f5c6cb; 
+            font-weight: bold; 
+            font-size: 0.9em; 
+            display: none; 
+        }
+
         table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
         th { background-color: #f2f2f2; }
         .status-completed { color: green; font-weight: bold; }
@@ -81,13 +95,16 @@
     <div class="modal-content">
         <span class="close-btn" id="closeAddBtn">&times;</span>
         <h2 style="margin-top: 0;">Add New Task</h2>
+        
+        <div id="addErrorNotification" class="modal-error-notification">⚠️ All fields are required!</div>
+        
         <form id="addTaskForm" method="POST" action="/store" class="modal-form" novalidate>
             <label>Task ID:</label>
-            <input type="number" name="id" min="1" required>
+            <input type="number" id="addTaskId" name="id" min="1" required>
             <label>Task Name:</label>
-            <input type="text" name="title" required maxlength="255">
+            <input type="text" id="addTaskTitle" name="title" required maxlength="255">
             <label>Description:</label>
-            <textarea name="description" rows="4"></textarea>
+            <textarea id="addTaskDesc" name="description" rows="4" required></textarea>
             <button type="button" id="triggerConfirmAddBtn" class="save-btn">Save Task</button>
         </form>
     </div>
@@ -130,6 +147,9 @@
     <div class="modal-content">
         <span class="close-btn" id="closeEditBtn">&times;</span>
         <h2 style="margin-top: 0;">Edit Task</h2>
+        
+        <div id="editErrorNotification" class="modal-error-notification">⚠️ All fields are required!</div>
+
         <form id="editTaskForm" method="POST" action="/update" class="modal-form" novalidate>
             <input type="hidden" name="id" id="editTaskId">
             
@@ -140,7 +160,7 @@
             <input type="text" name="title" id="editTaskTitle" required maxlength="255">
             
             <label>Description:</label>
-            <textarea name="description" id="editTaskDesc" rows="4"></textarea>
+            <textarea name="description" id="editTaskDesc" rows="4" required></textarea>
             
             <button type="button" id="triggerConfirmUpdateBtn" class="save-btn" style="background-color: #007bff;">Update Task</button>
         </form>
@@ -191,7 +211,7 @@
                     <a href="javascript:void(0)" 
                        style="color: #004085;" 
                        onclick="showEditModal(<?= $task['id'] ?>, '<?= addslashes(htmlspecialchars($task['title'])) ?>', '<?= addslashes(htmlspecialchars($task['description'] ?? '')) ?>')">
-                       Edit
+                        Edit
                     </a>
 
                     <span style="color: #ccc;">|</span>
@@ -199,7 +219,7 @@
                     <a href="javascript:void(0)" 
                        style="color: #721c24;" 
                        onclick="showDeleteModal(<?= $task['id'] ?>)">
-                       Delete
+                        Delete
                     </a>
                 </td>
             </tr>
@@ -230,7 +250,15 @@
     const finalSaveBtn = document.getElementById("finalSaveBtn");
     const editForm = document.getElementById("editTaskForm");
 
-    openAddBtn.onclick = () => addModal.style.display = "block";
+    // Grab notifications boxes
+    const addErrorAlert = document.getElementById("addErrorNotification");
+    const editErrorAlert = document.getElementById("editErrorNotification");
+
+    openAddBtn.onclick = () => {
+        addErrorAlert.style.display = "none";
+        addModal.style.display = "block";
+    };
+    
     openLogoutBtn.onclick = () => logoutModal.style.display = "block";
 
     function showDeleteModal(taskId) {
@@ -238,8 +266,8 @@
         deleteModal.style.display = "block";
     }
 
-    // FIX: Updates both the hidden update field and the visible static display box
     function showEditModal(id, title, description) {
+        editErrorAlert.style.display = "none"; // Hide previous validation state blocks
         document.getElementById("editTaskId").value = id;
         document.getElementById("displayEditId").value = id;
         document.getElementById("editTaskTitle").value = title;
@@ -247,16 +275,35 @@
         editModal.style.display = "block";
     }
 
+    // FIX: Checks fields are filled BEFORE triggering validation confirm blocks
     triggerConfirmAddBtn.onclick = () => {
-        addConfirmModal.style.display = "block";
+        const idVal = document.getElementById("addTaskId").value.trim();
+        const titleVal = document.getElementById("addTaskTitle").value.trim();
+        const descVal = document.getElementById("addTaskDesc").value.trim();
+
+        if (idVal === "" || titleVal === "" || descVal === "") {
+            addErrorAlert.style.display = "block";
+        } else {
+            addErrorAlert.style.display = "none";
+            addConfirmModal.style.display = "block";
+        }
     };
 
     finalAddBtn.onclick = () => {
         addForm.submit();
     };
 
+    // FIX: Checks fields are filled BEFORE triggering update confirm blocks
     triggerConfirmUpdateBtn.onclick = () => {
-        updateConfirmModal.style.display = "block";
+        const titleVal = document.getElementById("editTaskTitle").value.trim();
+        const descVal = document.getElementById("editTaskDesc").value.trim();
+
+        if (titleVal === "" || descVal === "") {
+            editErrorAlert.style.display = "block";
+        } else {
+            editErrorAlert.style.display = "none";
+            updateConfirmModal.style.display = "block";
+        }
     };
 
     finalSaveBtn.onclick = () => {

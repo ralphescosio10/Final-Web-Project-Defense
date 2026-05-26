@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
-use Core\Database\Database;
-
 class User {
-    private $db;
+    private $orm;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->orm = new DBORM();
     }
 
-    
     public function authenticate(string $username, string $password): array|bool {
         $user = $this->findByUsername($username);
 
-        
         if ($user && password_verify($password, $user['password'])) {
             return $user;
         }
@@ -24,20 +20,20 @@ class User {
     }
 
     public function findByUsername(string $username) {
-        $sql = "SELECT * FROM users WHERE username = :username";
-        $stmt = $this->db->connection()->prepare($sql);
-        $stmt->execute(['username' => $username]);
-        return $stmt->fetch();
+        $result = $this->orm->select('*')
+                            ->from('users')
+                            ->where('username', $username)
+                            ->get();
+        
+        return !empty($result) ? $result[0] : false;
     }
 
     public function create(string $username, string $password): bool {
-        $sql = "INSERT INTO users (username, password) VALUES (:username, :password)";
-        $stmt = $this->db->connection()->prepare($sql);
-        
-   
-        return $stmt->execute([
-            'username' => $username,
-            'password' => password_hash($password, PASSWORD_DEFAULT)
-        ]);
+        return $this->orm->table('users')
+                            ->insert([
+                                'username' => $username,
+                                'password' => password_hash($password, PASSWORD_DEFAULT)
+                            ])
+                            ->save();
     }
 }

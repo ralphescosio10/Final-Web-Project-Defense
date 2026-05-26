@@ -2,23 +2,24 @@
 
 namespace App\Models;
 
+use Core\Database\Database; // FIX: Pull in your core Database class
 use PDO;
 use Exception;
 
 class DBORM {
-    protected $pdo;
+    public $pdo; 
     protected $table;
     protected $query;
     protected $params = [];
     protected $orderPart = ""; 
 
-    public function __construct($dsn, $username, $password) {
-        try {
-            $this->pdo = new PDO($dsn, $username, $password);
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (Exception $e) {
-            die("Database Connection failed: " . $e->getMessage());
-        }
+    // FIX: Removed the constructor parameter. It now creates the connection internally.
+    public function __construct() {
+        // 1. Initialize your Database class file 
+        $database = new Database();
+        
+        // 2. Extract the working pure PDO instance using your connection() method
+        $this->pdo = $database->connection();
     }
 
     public function table($table) {

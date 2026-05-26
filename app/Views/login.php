@@ -13,6 +13,85 @@
         button:hover { background-color: #0056b3; }
         .footer { text-align: center; margin-top: 15px; font-size: 0.9rem; }
         .error-message { color: red; text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; }
+        
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Dim backgrounds */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 999;
+        }
+
+        /* Displays the modal */
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 260px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-yes {
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 4px;
+            width: 100%;
+            display: block;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+        .btn-yes:hover { background-color: #218838; }
+
+        .btn-no {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .btn-no:hover { background-color: #c82333; }
+        
+        /* Style for trigger pointer hook */
+        .open-modal-trigger {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .open-modal-trigger:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -50,9 +129,42 @@
     </form>
 
     <div class="footer">
-        Don't have an account? <a href="/register">Register here</a>
+        Don't have an account? <span class="open-modal-trigger" id="openModal">Register here</span>
     </div>
 </div>
+
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+        <p>Would you like to register an account?</p>
+        <div class="modal-buttons">
+            <a href="/register" class="btn-yes">Yes</a>
+            <button class="btn-no" id="closeModal">No</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('confirmModal');
+    const openBtn = document.getElementById('openModal');
+    const closeBtn = document.getElementById('closeModal');
+
+    // Display overlay
+    openBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+    });
+
+    // Remove overlay via 'No' button selection
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    // Close window if clicking anywhere on the outer dark backdrop
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+</script>
 
 </body>
 </html>
