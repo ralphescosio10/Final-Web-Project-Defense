@@ -10,7 +10,7 @@ class Database {
 
     public function __construct() {
         $host = "localhost";
-        $port = "3306"; // Default MySQL port
+        $port = "3306"; 
         $dbname = "task_manager";
         $username = "root";
         $password = "1234";

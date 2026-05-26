@@ -9,8 +9,6 @@ class Task implements TaskRepositoryInterface {
     private $db;
 
     public function __construct() {
-        // FIX: Cleaned constructor so it ONLY instantiates DBORM.
-        // DBORM will manage connecting to Database.php inside itself.
         $this->db = new DBORM();
     }
 

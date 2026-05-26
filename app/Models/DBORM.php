@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Core\Database\Database; // FIX: Pull in your core Database class
+use Core\Database\Database; 
 use PDO;
 use Exception;
 
@@ -13,12 +13,10 @@ class DBORM {
     protected $params = [];
     protected $orderPart = ""; 
 
-    // FIX: Removed the constructor parameter. It now creates the connection internally.
+    
     public function __construct() {
-        // 1. Initialize your Database class file 
         $database = new Database();
         
-        // 2. Extract the working pure PDO instance using your connection() method
         $this->pdo = $database->connection();
     }
 
